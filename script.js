@@ -5,9 +5,13 @@ var quizQuestion = document.getElementById("question-title");
 var choiceButtonEL = document.getElementById("choice-btns");
 var scoreBoard = document.getElementById("score-screen");
 var scoreBoardEl = document.getElementById("scoreboard");
-var co = 0
-var inCo = 0
+var co = [];
+var inCo = 0;
 var index = 0;
+var time = 60;
+var timeControl;
+var initialsEL = document.getElementById("initials")
+var submitButton = document.getElementById("submit")
 
 var questionArray = [
     {
@@ -67,6 +71,7 @@ var currentQ = questionArray[index];
 startButton.addEventListener("click", function(){
     startScreen.setAttribute("class", "hide");
     quizScreen.removeAttribute("class", "hide");
+    timeControl = setInterval(clockTick, 1000);
     buildCard();
 });
 
@@ -91,23 +96,62 @@ function qClick(){
     //evaluate our answers
     if (this.value !== currentQ.correct) {
         console.log("wrong")
-        {inCo++}
+        time - 10;
+        if (time < 0 ){
+            time = 0
+        }
+
     } else {
         console.log("right")
-        {co++}
+        co.push(currentQ)
+        console.log(co)
     }
     //increment index value
     index++;
     currentQ = questionArray[index];
     if(index === questionArray.length){
-        console.log("endgame")
-        quizScreen.setAttribute("class", "hide");
-        scoreBoard.removeAttribute("class", "hide");
-        scoreBoard.textContent = "correct" + co , "incorrect" + inCo;
-        scoreBoardEl.appendChild(scoreBoard);
+       endQuiz()
         
     } else {
     buildCard();
     }
- 
 }
+
+ function clockTick(){
+     time--;
+    var timer = document.getElementById("timerEL");
+    timer.textContent = time;
+    if (time <= 0){
+        endQuiz()
+    }
+    
+ }
+
+ function endQuiz(){
+    console.log("endgame")
+    quizScreen.setAttribute("class", "hide");
+    scoreBoard.removeAttribute("class", "hide");
+    // scoreBoard.textContent = "correct: " + co.length;
+    // scoreBoard.appendChild(scoreBoardEl);
+
+    clearInterval(timeControl);
+    
+ }
+
+ function saveHighScore(){
+    var initials = initialsEL.value.trim()
+    if (initials !== ""){
+    var highScores = JSON.parse(window.localStorage.getItem("highScores")) || [];
+    var score = {score:time, initials:initials}
+    highScores.push(score);
+    window.localStorage.setItem("highScores", JSON.stringify(highScores));
+
+    }
+console.log(localStorage);
+}
+ submitButton.onclick = saveHighScore;
+
+// JSON.parse(highScores)
+// highSCores.sort(function(a,b){
+ //    return b.score - a.score
+// });
